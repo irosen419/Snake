@@ -1,3 +1,12 @@
+require 'ruby2d'
+
+set background: 'navy'
+set fps_cap: 20
+
+SQUARE_SIZE = 20
+GRID_WIDTH = Window.width / SQUARE_SIZE
+GRID_HEIGHT = Window.height / SQUARE_SIZE
+
 class Snake
     attr_writer :direction
 
@@ -81,6 +90,7 @@ class Game
            Square.new(x: @ball_x * SQUARE_SIZE, y: @ball_y * SQUARE_SIZE, size: SQUARE_SIZE, color: 'yellow')
         end
         Text.new(text_message, color: "green", x: 10, y: 10, size: 25)
+        Text.new(high_score_text, color: "green", x: 10, y: 40, size: 25)
     end
 
     def snake_hit_ball?(x, y)
@@ -103,11 +113,35 @@ class Game
 
     private
 
+    def high_score
+        File.new("./highscore.txt")
+    end
+
+    def high_score_writer
+        if @score > high_score.read(2).to_i
+            IO.write("./highscore.txt", @score)
+        end
+    end
+
     def text_message
         if finished?
-            "Game over. Your score was #{@score}. Press 'R' to restart. "
+            high_score_writer
+            "Game over. Your score was #{@score}. " 
         else
             "Score: #{@score}"
+        end
+    end
+
+    def high_score_text
+        if finished?
+            high_score_writer
+            if @score <= high_score.read(2).to_i
+                "Current high score: #{high_score.read(2)} Press 'R' to restart. "
+            else
+                "Congratulations! Your new high score is #{high_score.read(2)} Press 'R' to restart. "
+            end
+        else
+            "High Score: #{high_score.read(2)}"
         end
     end
 
